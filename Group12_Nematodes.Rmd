@@ -3,3 +3,15 @@ title: "Group12_Nematodes"
 output: html_document
 ---
 
+```{r}
+library("tidyverse")
+library("janitor")
+library("naniar")
+```
+
+```{r}
+nematodes <- read.csv("data/dataset2.txt", header = TRUE, sep = "", stringsAsFactors = FALSE, fill = TRUE)
+#this way cleans up the data nicely, can clean it up further and combine more data
+```
+
+
