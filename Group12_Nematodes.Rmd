@@ -14,4 +14,8 @@ nematodes <- read.csv("data/dataset2.txt", header = TRUE, sep = "", stringsAsFac
 #this way cleans up the data nicely, can clean it up further and combine more data
 ```
 
+```{r}
+names(nematodes)
+```
+
 
