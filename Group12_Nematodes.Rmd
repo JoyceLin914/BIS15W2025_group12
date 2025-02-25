@@ -18,4 +18,8 @@ nematodes <- read.csv("data/dataset2.txt", header = TRUE, sep = "", stringsAsFac
 names(nematodes)
 ```
 
+```{r}
+treonis <- read.csv("data/Treonis.csv")
+
+```
 
