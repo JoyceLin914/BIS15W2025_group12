@@ -38,7 +38,8 @@ treonis_1 <- treonis %>%  #cleaning up the column names
 ```
 
 ```{r}
-?cols
+soil <- soil %>% 
+  replace_with_na_all(condition = ~.x == "NaN") 
 ```
 
 ```{r}
