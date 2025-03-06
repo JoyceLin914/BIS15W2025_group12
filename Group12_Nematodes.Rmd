@@ -22,11 +22,51 @@ names(nematodes)
 ```
 
 ```{r}
-treonis <- read.csv("data/Treonis.csv")
+treonis <- read.csv("data/Treonis.csv") %>% clean_names()
 
 ```
 
 ```{r}
 soil <- read_excel("Soil_nematodes_all_data_final_Dryad.xlsx") %>% clean_names()
+```
+
+
+```{r} 
+treonis_1 <- treonis %>%  #cleaning up the column names 
+  rename_with(~str_replace(.x, "_identified", "")) 
+ 
+```
+
+```{r}
+?cols
+```
+
+```{r}
+treonis_2 <- treonis_1 %>% 
+  pivot_longer(cols = 14:27, 
+               names_to = "species", 
+               values_to = "count")
+```
+
+```{r}
+treonis_2 <- treonis_2 %>% 
+  replace_with_na_all(condition = ~.x == 9999) 
+
+```
+
+```{r}
+treonis_2 <- treonis_2 %>% 
+  replace_with_na_all(condition = ~.x == "nd") 
+```
+
+```{r}
+treonis_2 <- treonis_2 %>% #pivoted back because there were too many duplicates from the first pivot
+  pivot_wider(names_from = "species", 
+              values_from = "count")
+```
+
+```{r}
+treonis_2 %>% 
+  
 ```
 
