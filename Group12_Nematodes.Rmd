@@ -47,8 +47,10 @@ treonis_1 <- treonis %>%  #cleaning up the column names
 ```
 
 ```{r}
-soil <- soil %>% 
-  replace_with_na_all(condition = ~.x == "NaN") 
+soil <- soil %>%
+  replace_with_na_all(condition = ~.x == "NaN") %>%
+  mutate(across(ends_with("herbivores"), ~ round(suppressWarnings(as.numeric(.)), 1)))
+
 ```
 
 ```{r}
@@ -84,6 +86,11 @@ treonis_2 <- treonis_2 %>% #pivoted back because there were too many duplicates 
 ```{r}
 names(soil)
 ```
+```{r}
+summary(soil)
+miss_var_summary(soil)
+```
+
 
 
 ```{r}
