@@ -3,6 +3,9 @@ title: "Group12_Nematodes"
 output: html_document
 ---
 
+```{r}
+#install.packages("leaflet")
+```
 
 
 ```{r}
@@ -10,6 +13,11 @@ library("tidyverse")
 library("janitor")
 library("naniar")
 library("readxl")
+library(shiny)
+library(shinydashboard)
+library(shinythemes)
+library(fastmap)
+library(leaflet)
 ```
 
 ```{r}
@@ -68,5 +76,44 @@ treonis_2 <- treonis_2 %>% #pivoted back because there were too many duplicates 
 
 ```{r}
   write.csv(treonis_2, "data/treonis_2.csv", row.names = FALSE)
+```
+
+
+
+```{r}
+names(soil)
+```
+
+
+```{r}
+soil %>% 
+  ggplot(aes(x=p_h, y=elevation))+
+  geom_point()+
+  geom_smooth(method = lm, se=F)
+```
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(titlePanel("Nematodes with Soils App"),
+                selectInput("x", 
+                            "Select X Variable",
+                            choices = c("p_h", "conductivity", "temperature"),
+                            selected = "p_h"),
+                selectInput("y", 
+                            "Select Y Variable",
+                            choices = c("p_h", "conductivity", "temperature"),
+                            selected = "conductivity"),
+                plotOutput("ggplot_map")
+                
+  
+)
+
+server <- function(input, output, session) {
+  session$onSessionEnded(stopApp)
+     
+}
+
+shinyApp(ui, server)
 ```
 
