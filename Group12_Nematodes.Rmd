@@ -359,7 +359,7 @@ shinyApp(ui, server)
 ```
 
 
-**it almost works**
+**Works!!!**
 ```{r}
 library(shiny)
 
@@ -373,9 +373,16 @@ ui <- dashboardPage(
       menuItem("Elevation and Soil Moisture", tabName = "widgets", icon = icon("th")),
       menuItem("Elevation and Diversity", tabName = "tables", icon = icon("th")),
       menuItem("Elevation level and Species", tabName = "species", icon = icon("th"))
-    ),
+    )
     
-    selectInput("nematode", "Select Trophic Guild(s):", 
+    
+  ),
+  
+  dashboardBody(
+    tabItems(
+      tabItem(tabName = "map",
+              leafletOutput("nematode_map", height = 600),
+              selectInput("nematode", "Select Trophic Guild(s):", 
                 choices = unique(nematode$trophic_guild), 
                 selected = unique(nematode$trophic_guild)[1],
                 multiple = TRUE),
@@ -391,21 +398,15 @@ ui <- dashboardPage(
                 min = min(nematode$elevation, na.rm = TRUE), 
                 max = max(nematode$elevation, na.rm = TRUE), 
                 value = c(min(nematode$elevation, na.rm = TRUE), max(nematode$elevation, na.rm = TRUE)))
-  ),
-  
-  dashboardBody(
-    tabItems(
-      tabItem(tabName = "map",
-              leafletOutput("nematode_map", height = 600)
       ),
       
       tabItem(tabName = "dashboard",
               fluidRow(
                 box(plotOutput("plot1", height = 250)),
-                selectInput("x", "Select X Variable", 
+                selectInput("x", "Select Soil Variable:", 
                             choices = c("conductivity", "p_h", "moisture", "temperature"), 
                             selected = "conductivity"),
-                selectInput("y", "Select Y Variable", 
+                selectInput("y", "Select Climatic Variable:", 
                             choices = c("temperature_annual_range", "precipitation_of_wettest_month", "precipitation_seasonality", "precipitation_of_driest_month"), 
                             selected = "temperature_annual_range")
               )
@@ -414,7 +415,7 @@ ui <- dashboardPage(
       tabItem(tabName = "widgets",
               fluidRow(
                 box(plotOutput("plot2", height = 250)),
-                selectInput("elevation", "Select elevation:", choices = unique(soil$elevation_level))
+                selectInput("elevation", "Select Elevation Level:", choices = unique(soil$elevation_level))
               )
       ),
       
@@ -485,8 +486,39 @@ server <- function(input, output, session) {
     ggplot(data = soil, aes_string(x = input$x, y = input$y, color = "transect")) +
       geom_point(na.rm = TRUE) +
       theme_light(base_size = 14) +
-      geom_smooth(method = "lm", se = FALSE)
+      geom_smooth(method = "lm", se = FALSE)+
+      labs(title="Soil vs Climatic Properties")
   })
+  
+  output$plot2 <- renderPlot({
+    
+    soil %>% 
+    filter(elevation_level==input$elevation) %>%
+    ggplot(aes(x=moisture)) + 
+    geom_density(color="black", fill="steelblue", alpha=0.6)+
+    labs(title="Moisture at Different Elevation Levels")
+    
+  })
+    
+
+    output$plot3 <- renderPlot({
+
+ ggplot(data=soil, 
+           aes_string(x="elevation_level", y=input$y, color="transect"))+
+      geom_boxplot(na.rm=T)+
+      theme_light(base_size=14)+
+      labs(title="Elevation vs Diversity")
+      
+    })
+    
+    output$plot4<-renderPlot({
+ ggplot(data = soil,
+        aes_string(x=input$x, y=input$y, color="transect"))+
+          geom_point(na.rm=T)+
+          theme_light(base_size = 14)+
+          geom_smooth(method=lm, se=T, color="black")+
+          labs(title="Soil Properties vs Trophic Guilds")
+      })
 }
 
 
