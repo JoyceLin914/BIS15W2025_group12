@@ -94,12 +94,19 @@ miss_var_summary(soil)
 
 
 
-```{r}
-soil %>% 
-  ggplot(aes(x=p_h, y=elevation))+
-  geom_point()+
-  geom_smooth(method = lm, se=F)
+```{r, eval=F, echo=T}
+ui <- dashboardPage(
+  dashboardHeader(title = "This is the Header"),
+  dashboardSidebar(title = "This is the Sidebar"),
+  dashboardBody() # this is where the output will go
+)
+
+server <- function(input, output) { }
+
+shinyApp(ui, server)
 ```
+
+
 
 ```{r}
 library(shiny)
@@ -256,45 +263,45 @@ shinyApp(ui, server)
 
 ### Made some categorical variables for the Soil data for trophic guilds. Feel free to use, change, or delete.
 ```{r}
-#soil <- soil %>% 
-             #mutate(herbivore_level = case_when(herbivores_percent_of_total <= 40 ~ "small",
-                                              #herbivores_percent_of_total > 40 & herbivores_percent_of_total <= 60 ~ "medium",
-                                              #herbivores_percent_of_total > 60 ~ "large"))
+soil <- soil %>% 
+             mutate(herbivore_level = case_when(herbivores_percent_of_total <= 40 ~ "small",
+                                              herbivores_percent_of_total > 40 & herbivores_percent_of_total <= 60 ~ "medium",
+                                              herbivores_percent_of_total > 60 ~ "large"))
 ```
 
 ```{r}
-#soil <- soil %>% 
-             #mutate(fungivores_level = case_when(fungivores_percent_of_total <= 40 ~ "small",
-                                             #fungivores_percent_of_total > 40 & fungivores_percent_of_total <= 60 ~ "medium",
-                                              #fungivores_percent_of_total > 60 ~ "large"))
+soil <- soil %>% 
+             mutate(fungivores_level = case_when(fungivores_percent_of_total <= 40 ~ "small",
+                                             fungivores_percent_of_total > 40 & fungivores_percent_of_total <= 60 ~ "medium",
+                                              fungivores_percent_of_total > 60 ~ "large"))
 ```
 
 ```{r}
-#soil <- soil %>% 
-             #mutate(bacterivores_level = case_when(bacterivores_percent_of_total <= 40 ~ "small",
-                                              #bacterivores_percent_of_total > 40 & bacterivores_percent_of_total <= 60 ~ "medium",
-                                              #bacterivores_percent_of_total > 60 ~ "large"))
+soil <- soil %>% 
+             mutate(bacterivores_level = case_when(bacterivores_percent_of_total <= 40 ~ "small",
+                                              bacterivores_percent_of_total > 40 & bacterivores_percent_of_total <= 60 ~ "medium",
+                                              bacterivores_percent_of_total > 60 ~ "large"))
 ```
 
 ```{r}
-#soil <- soil %>% 
-             #mutate(predators_level = case_when(predators_percent_of_total <= 40 ~ "small",
-                                              #predators_percent_of_total > 40 & predators_percent_of_total <= 60 ~ "medium",
-                                              #predators_percent_of_total > 60 ~ "large"))
+soil <- soil %>% 
+             mutate(predators_level = case_when(predators_percent_of_total <= 40 ~ "small",
+                                              predators_percent_of_total > 40 & predators_percent_of_total <= 60 ~ "medium",
+                                              predators_percent_of_total > 60 ~ "large"))
 ```
 
 ```{r}
-#soil <- soil %>% 
-             #mutate(omnivores_level = case_when(omnivores_percent_of_total <= 40 ~ "small",
-                                              #omnivores_percent_of_total > 40 & omnivores_percent_of_total <= 60 ~ "medium",
-                                              #omnivores_percent_of_total > 60 ~ "large"))
+soil <- soil %>% 
+             mutate(omnivores_level = case_when(omnivores_percent_of_total <= 40 ~ "small",
+                                              omnivores_percent_of_total > 40 & omnivores_percent_of_total <= 60 ~ "medium",
+                                              omnivores_percent_of_total > 60 ~ "large"))
 ```
 
 ```{r}
-#soil <- soil %>% 
-             #mutate(elevation_level = case_when(elevation <= 1695.5 ~ "small",
-                                              #elevation > 1695.5 & elevation <= 3109 ~ "medium",
-                                              #elevation > 3109 ~ "large"))
+soil <- soil %>% 
+             mutate(elevation_level = case_when(elevation <= 1695.5 ~ "small",
+                                              elevation > 1695.5 & elevation <= 3109 ~ "medium",
+                                              elevation > 3109 ~ "large"))
 ```
 
 
