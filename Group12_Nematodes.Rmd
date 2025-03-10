@@ -369,10 +369,10 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Map", tabName = "map", icon = icon("map")),
-      menuItem("Soil and Climate", tabName = "dashboard", icon = icon("dashboard")),
-      menuItem("Elevation and Soil Moisture", tabName = "widgets", icon = icon("th")),
-      menuItem("Elevation and Diversity", tabName = "tables", icon = icon("th")),
-      menuItem("Elevation level and Species", tabName = "species", icon = icon("th"))
+      menuItem("Soil vs Climatic Properties", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem("Moisture at Different Elevation Levels", tabName = "widgets", icon = icon("th")),
+      menuItem("Elevation vs Diversity", tabName = "tables", icon = icon("th")),
+      menuItem("Soil Properties vs Trophic Guilds", tabName = "species", icon = icon("th"))
     )
     
     
