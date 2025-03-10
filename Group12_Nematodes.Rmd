@@ -403,10 +403,10 @@ ui <- dashboardPage(
       tabItem(tabName = "dashboard",
               fluidRow(
                 box(plotOutput("plot1", height = 250)),
-                selectInput("x", "Select Soil Variable:", 
+                selectInput("x_dash", "Select Soil Variable:", 
                             choices = c("conductivity", "p_h", "moisture", "temperature"), 
                             selected = "conductivity"),
-                selectInput("y", "Select Climatic Variable:", 
+                selectInput("y_dash", "Select Climatic Variable:", 
                             choices = c("temperature_annual_range", "precipitation_of_wettest_month", "precipitation_seasonality", "precipitation_of_driest_month"), 
                             selected = "temperature_annual_range")
               )
@@ -422,7 +422,7 @@ ui <- dashboardPage(
       tabItem(tabName = "tables",
               fluidRow(
                 box(plotOutput("plot3", height = 250)),
-                selectInput("y", "Select Y Variable", 
+                selectInput("y_tables", "Select Y Variable", 
                             choices = c("enrichment_footprint", "composite_footprint", "sigma_maturity_index"), 
                             selected = "enrichment_footprint")
               )
@@ -431,10 +431,10 @@ ui <- dashboardPage(
       tabItem(tabName = "species",
               fluidRow(
                 box(plotOutput("plot4", height = 400, width = 400)),
-                selectInput("x", "Select X Variable", 
+                selectInput("x_species", "Select X Variable", 
                             choices = c("conductivity", "p_h", "moisture", "temperature","isothermality"), 
                             selected = "conductivity"),
-                selectInput("y", "Select Y Variable", 
+                selectInput("y_species", "Select Y Variable", 
                             choices = c("herbivores_percent_of_total", "fungivores_percent_of_total", "bacterivores_percent_of_total", "predators_percent_of_total", "omnivores_percent_of_total"),
                             selected = "herbivores_percent_of_total")
               )
@@ -483,7 +483,7 @@ server <- function(input, output, session) {
   })
   
   output$plot1 <- renderPlot({
-    ggplot(data = soil, aes_string(x = input$x, y = input$y, color = "transect")) +
+    ggplot(data = soil, aes_string(x = input$x_dash, y = input$y_dash, color = "transect")) +
       geom_point(na.rm = TRUE) +
       theme_light(base_size = 14) +
       geom_smooth(method = "lm", se = FALSE)+
@@ -504,7 +504,7 @@ server <- function(input, output, session) {
     output$plot3 <- renderPlot({
 
  ggplot(data=soil, 
-           aes_string(x="elevation_level", y=input$y, color="transect"))+
+           aes_string(x="elevation_level", y=input$y_tables, color="transect"))+
       geom_boxplot(na.rm=T)+
       theme_light(base_size=14)+
       labs(title="Elevation vs Diversity")
@@ -513,7 +513,7 @@ server <- function(input, output, session) {
     
     output$plot4<-renderPlot({
  ggplot(data = soil,
-        aes_string(x=input$x, y=input$y, color="transect"))+
+        aes_string(x=input$x_species, y=input$y_species, color="transect"))+
           geom_point(na.rm=T)+
           theme_light(base_size = 14)+
           geom_smooth(method=lm, se=T, color="black")+
