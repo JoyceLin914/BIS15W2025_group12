@@ -606,7 +606,7 @@ ui <- dashboardPage(
       
       tabItem(tabName = "dashboard",
               fluidRow(
-                box(plotOutput("plot1", height = 250)),
+                box(plotOutput("plot1")),
                 selectInput("x_dash", "Select Soil Variable:", 
                             choices = c("conductivity", "p_h", "moisture", "temperature"), 
                             selected = "conductivity"),
@@ -618,14 +618,14 @@ ui <- dashboardPage(
       
       tabItem(tabName = "widgets",
               fluidRow(
-                box(plotOutput("plot2", height = 250)),
+                box(plotOutput("plot2")),
                 selectInput("elevation", "Select Elevation Level:", choices = unique(soil$elevation_level))
               )
       ),
       
       tabItem(tabName = "tables",
               fluidRow(
-                box(plotOutput("plot3", height = 250)),
+                box(plotOutput("plot3")),
                 selectInput("y_tables", "Select Y Variable", 
                             choices = c("enrichment_footprint", "composite_footprint", "sigma_maturity_index"), 
                             selected = "enrichment_footprint")
@@ -634,7 +634,7 @@ ui <- dashboardPage(
       
       tabItem(tabName = "species",
               fluidRow(
-                box(plotOutput("plot4", height = 400, width = 400)),
+                box(plotOutput("plot4")),
                 selectInput("x_species", "Select X Variable", 
                             choices = c("conductivity", "p_h", "moisture", "temperature","isothermality"), 
                             selected = "conductivity"),
