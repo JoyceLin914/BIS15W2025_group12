@@ -711,12 +711,15 @@ server <- function(input, output, session) {
     
 
     output$plot3 <- renderPlot({
-
+      
  ggplot(data=soil, 
-           aes_string(x="elevation_level", y=input$y_tables, color="transect"))+
+           aes(x = factor(elevation_level, levels = c("Low", "Medium", "High")),
+               y= !!sym(input$y_tables),
+              color= transect))+
       geom_boxplot(na.rm=T)+
       theme_light(base_size=14)+
-      labs(title="Elevation vs Diversity")
+      labs(title="Elevation vs Diversity", 
+           x = "Elevation (m)")
       
     })
     
