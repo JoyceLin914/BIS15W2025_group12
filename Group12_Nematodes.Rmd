@@ -563,7 +563,7 @@ names(nematode)
 ```
 
 
-**new shiny im working on, we do not have to use this as its not done yet**
+**Final one that works, some adjustments to map**
 ```{r}
 library(shiny)
 
