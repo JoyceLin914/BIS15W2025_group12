@@ -601,7 +601,7 @@ ui <- dashboardPage(
     sliderInput("elevation_range", "Select Elevation Range:",
                 min = min(nematode$elevation, na.rm = TRUE), 
                 max = max(nematode$elevation, na.rm = TRUE), 
-                value = c(min(nematode$elevation, na.rm = TRUE), max(nematode$elevation, na.rm = TRUE)))
+                value = c(min(nematode$elevation, na.rm = TRUE), max(nematode$elevation, na.rm = TRUE))),
       ),
       
       tabItem(tabName = "dashboard",
