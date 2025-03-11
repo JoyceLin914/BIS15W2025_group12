@@ -601,7 +601,7 @@ ui <- dashboardPage(
     sliderInput("elevation_range", "Select Elevation Range:",
                 min = min(nematode$elevation, na.rm = TRUE), 
                 max = max(nematode$elevation, na.rm = TRUE), 
-                value = c(min(nematode$elevation, na.rm = TRUE), max(nematode$elevation, na.rm = TRUE))),
+                value = c(min(nematode$elevation, na.rm = TRUE), max(nematode$elevation, na.rm = TRUE)))
       ),
       
       tabItem(tabName = "dashboard",
@@ -682,10 +682,10 @@ server <- function(input, output, session) {
         "<b>Moisture:</b> ", moisture, " 💧<br>",
         "<b>Conductivity:</b> ", conductivity, " ⚡<br>"
       ),
-      clusterOptions = markerClusterOptions(spiderfyOnMaxZoom = TRUE,  # Expands clusters when zoomed in
-  showCoverageOnHover = FALSE,  # Prevents large coverage areas on hover
-  zoomToBoundsOnClick = TRUE,  # Zooms into a cluster when clicked
-  spiderfyDistanceMultiplier = 2)
+      clusterOptions = markerClusterOptions(spiderfyOnMaxZoom = TRUE, 
+                                            showCoverageOnHover = FALSE, 
+                                            zoomToBoundsOnClick = TRUE, 
+                                            spiderfyDistanceMultiplier = 2)
       ) %>%
       addLegend("topright", 
                 pal = pal, 
