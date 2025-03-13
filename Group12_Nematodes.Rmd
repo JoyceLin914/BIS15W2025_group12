@@ -1245,8 +1245,8 @@ server <- function(input, output, session) {
   scale_fill_gradient(low = "yellow", high = "red") +
   geom_text(aes(label = round(Correlation, 2)), size = 4, color = "black") +
   labs(title = "Climate-Soil Relationship Heatmap",
-       x = "Climate & Soil Variables",
-       y = "Climate & Soil Variables",
+       x = "Climate Properties",
+       y = "Soil Properties",
        fill = "Correlation") +
   theme_minimal() +
   theme(axis.text.x = element_text(size= 14, angle = 45, hjust = 1),
