@@ -5,7 +5,7 @@ output: html_document
 
 ```{r}
 #install.packages("mapdata")
-install.packages("plotly")
+#install.packages("plotly")
 ```
 
 
@@ -1032,31 +1032,36 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 ```
+
+**Create some data group
+```{r}
+climate_properties <- soil%>%
+  select(temperature_annual_range, precipitation_of_wettest_month, precipitation_seasonality, precipitation_of_driest_month)
+soil_properties <- soil %>%
+  select(conductivity, moisture, temperature, p_h)
+trophic_guilds <- soil %>%
+  select(herbivores_percent_of_total,fungivores_percent_of_total,  bacterivores_percent_of_total, 
+         omnivores_percent_of_total, predators_percent_of_total)
+nematode_index <- soil%>%
+  select(sigma_maturity_index,channel_index, enrichment_footprint, composite_footprint)
+```
+
 **Create matrix for Heatmap**
 ```{r}
-cor_matrix <- soil %>%
-  select(p_h, conductivity, moisture, temperature, temperature_annual_range, precipitation_of_wettest_month, precipitation_seasonality, precipitation_of_driest_month) %>%
-  cor()
+cor_matrix <- cor(climate_properties, soil_properties, use= "complete.obs")
 cor_long <- as.data.frame(as.table(cor_matrix))
 colnames(cor_long) <- c("Climate_Soil_Var1", "Climate_Soil_Var2", "Correlation")
-cor_long <- cor_long %>%
-  mutate(elevation = mean(soil$elevation))
-cor_long <- cor_long%>%
-  mutate(elevation = runif(nrow(cor_long), min(soil$elevation), max(soil$elevation))) # Simulated elevation values
 ```
 
 ```{r}
-# Heatmap with elevation as fill color
-ggplot(cor_long, aes(x = Climate_Soil_Var1, y = Climate_Soil_Var2, fill = elevation)) +
-  geom_tile() +
-  scale_fill_gradient(low = "yellow", high = "red") +
-  geom_text(aes(label = round(Correlation, 2)), size = 4, color = "black") +
-  labs(title = "Climate-Soil Relationship Heatmap (Filled by Elevation)",
-       x = "Climate & Soil Variables",
-       y = "Climate & Soil Variables",
-       fill = "Elevation") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+cor_matrix_trophic <- cor(soil_properties, trophic_guilds, use = "complete.obs")
+cor_long_trophic <- as.data.frame(as.table(cor_matrix_trophic))
+```
+
+```{r}
+cor_matrix_index <- cor(trophic_guilds, nematode_index, use = "complete.obs")
+cor_long_index <- as.data.frame(as.table(cor_matrix_index))
+colnames(cor_long_index) <- c("species_index_Var1", "species_index_Var2", "value")
 ```
 
 \*\*Adjustments on each graph to make them connected
@@ -1114,11 +1119,11 @@ ui <- fluidPage(theme = shinytheme('flatly'),
     fluidPage(
       fluidRow(
         column(6,
-          plotOutput("plot_species", height = 400, width = 400)
+          plotOutput("plot_species", height = 250)
         ),
         column(6,
           selectInput("x_species", "Select Soil Variable", 
-                      choices = c("conductivity", "p_h", "moisture", "temperature", "isothermality"), 
+                      choices = c("conductivity", "p_h", "moisture", "temperature"), 
                       selected = "conductivity"),
           selectInput("y_species", "Select Nematode Trophic Class", 
                       choices = c("herbivores_percent_of_total", "fungivores_percent_of_total", 
@@ -1126,7 +1131,10 @@ ui <- fluidPage(theme = shinytheme('flatly'),
                                   "omnivores_percent_of_total"),
                       selected = "herbivores_percent_of_total")
         )
-      )
+      ),
+       hr(),
+      h4("Soil-Species Correlation Heatmap"),
+      plotOutput("heatmap_soil_species", height = 400)
     )
   ),
   
@@ -1134,7 +1142,7 @@ ui <- fluidPage(theme = shinytheme('flatly'),
     fluidPage(
       fluidRow(
         column(6,
-          plotOutput("plot_stability", height = 400, width = 400)
+          plotOutput("plot_stability", height = 250)
         ),
         column(6,
           selectInput("x_stability", "Select Nematode Trophic Class", 
@@ -1147,7 +1155,10 @@ ui <- fluidPage(theme = shinytheme('flatly'),
                                   "sigma_maturity_index", "channel_index"), 
                       selected = "enrichment_footprint")
         )
-      )
+      ),
+       hr(),
+      h4("Species-Ecosystem Correlation Heatmap"),
+      plotOutput("heatmap_species_index", height = 400)
     )
   ),
   
@@ -1229,14 +1240,14 @@ server <- function(input, output, session) {
   })
   
  output$heatmap_climate_soil <- renderPlot({
-   ggplot(cor_long, aes(x = Climate_Soil_Var1, y = Climate_Soil_Var2, fill = elevation)) +
+   ggplot(cor_long, aes(x = Climate_Soil_Var1, y = Climate_Soil_Var2, fill = Correlation)) +
   geom_tile() +
   scale_fill_gradient(low = "yellow", high = "red") +
   geom_text(aes(label = round(Correlation, 2)), size = 4, color = "black") +
-  labs(title = "Climate-Soil Relationship Heatmap (Filled by Elevation)",
+  labs(title = "Climate-Soil Relationship Heatmap",
        x = "Climate & Soil Variables",
        y = "Climate & Soil Variables",
-       fill = "Elevation") +
+       fill = "Correlation") +
   theme_minimal() +
   theme(axis.text.x = element_text(size= 14, angle = 45, hjust = 1),
         axis.text.y = element_text(size= 14),
@@ -1251,12 +1262,42 @@ server <- function(input, output, session) {
       labs(title = "Soil Properties vs Trophic Guilds")
   })
   
+  output$heatmap_soil_species <- renderPlot({
+ggplot(cor_long_trophic, aes(x = Var1, y = Var2, fill = Freq)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  geom_text(aes(label = round(Freq, 2)), size = 4, color = "black") +  
+  labs(title = "Soil Properties vs. Trophic Guilds Correlation Heatmap",
+       x = "Soil Properties",
+       y = "Trophic Guilds",
+       fill = "Correlation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+        axis.text.y = element_text(size = 14),
+        plot.title = element_text(size = 16, face = "bold"))
+  })
+  
   output$plot_stability <- renderPlot({
     ggplot(data = soil, aes_string(x = input$x_stability, y = input$y_stability, color = "transect")) +
       geom_point(na.rm = TRUE) +
       theme_light(base_size = 14) +
       geom_smooth(method = "lm", se = TRUE, color = "black") +
       labs(title = "Trophic Guilds vs Functional Diversity Index")
+  })
+  
+  output$heatmap_species_index <- renderPlot({
+ggplot(cor_long_index, aes(x = species_index_Var1, y = species_index_Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  geom_text(aes(label = round(value, 2)), size = 4, color = "black") +  
+  labs(title = "Trophic Guilds vs. Nematode Functional Diversity Index Correlation Heatmap",
+       x = "Trophic Guilds",
+       y = "Nematode Functional Diversity Index",
+       fill = "Correlation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+        axis.text.y = element_text(size = 14),
+        plot.title = element_text(size = 16, face = "bold"))
   })
   
   output$plot3D <- renderPlotly({
