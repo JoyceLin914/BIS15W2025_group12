@@ -20,6 +20,8 @@ library(fastmap)
 
 library(leaflet)
 library(mapdata)
+library(plotly)
+library(dplyr)
 ```
 
 ```{r}
@@ -75,6 +77,57 @@ nematode <- soil2 %>%
   mutate(trophic_guild = str_remove(trophic_guild, "_percent_of_total"))
 ```
 
+### Made some categorical variables for the Soil data for trophic guilds. Feel free to use, change, or delete.
+```{r}
+soil <- soil %>% 
+             mutate(herbivore_level = case_when(herbivores_percent_of_total <= 40 ~ "small",
+                                              herbivores_percent_of_total > 40 & herbivores_percent_of_total <= 60 ~ "medium",
+                                              herbivores_percent_of_total > 60 ~ "large"))
+```
+
+```{r}
+soil <- soil %>% 
+             mutate(fungivores_level = case_when(fungivores_percent_of_total <= 40 ~ "small",
+                                             fungivores_percent_of_total > 40 & fungivores_percent_of_total <= 60 ~ "medium",
+                                              fungivores_percent_of_total > 60 ~ "large"))
+```
+
+```{r}
+soil <- soil %>% 
+             mutate(bacterivores_level = case_when(bacterivores_percent_of_total <= 40 ~ "small",
+                                              bacterivores_percent_of_total > 40 & bacterivores_percent_of_total <= 60 ~ "medium",
+                                              bacterivores_percent_of_total > 60 ~ "large"))
+```
+
+```{r}
+soil <- soil %>% 
+             mutate(predators_level = case_when(predators_percent_of_total <= 40 ~ "small",
+                                              predators_percent_of_total > 40 & predators_percent_of_total <= 60 ~ "medium",
+                                              predators_percent_of_total > 60 ~ "large"))
+```
+
+```{r}
+soil <- soil %>% 
+             mutate(omnivores_level = case_when(omnivores_percent_of_total <= 40 ~ "small",
+                                              omnivores_percent_of_total > 40 & omnivores_percent_of_total <= 60 ~ "medium",
+                                              omnivores_percent_of_total > 60 ~ "large"))
+```
+
+```{r}
+soil <- soil %>% 
+             mutate(elevation_level = case_when(elevation <= 1695.5 ~ "small",
+                                              elevation > 1695.5 & elevation <= 3109 ~ "medium",
+                                              elevation > 3109 ~ "large"))
+```
+
+
+### Made a new categorical variable for elevation levels.
+```{r}
+soil <- soil %>% 
+             mutate(elevation_level = case_when(elevation <= 1695.5 ~ "small",
+                                              elevation > 1695.5 & elevation <= 3109 ~ "medium",
+                                              elevation > 3109 ~ "large"))
+```
 
 **Other shiny app option, may need to install certain packages**
 ```{r}
@@ -170,14 +223,9 @@ shinyApp(ui, server)
 
 
 
-### Made some categorical variables for the Soil data for trophic guilds. Feel free to use, change, or delete.
-```{r}
-soil <- soil %>% 
-             mutate(herbivore_level = case_when(herbivores_percent_of_total <= 40 ~ "small",
-                                              herbivores_percent_of_total > 40 & herbivores_percent_of_total <= 60 ~ "medium",
-                                              herbivores_percent_of_total > 60 ~ "large"))
-```
 
+<<<<<<< HEAD
+=======
 ```{r}
 soil <- soil %>% 
              mutate(fungivores_level = case_when(fungivores_percent_of_total <= 40 ~ "small",
@@ -357,6 +405,7 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 ```
+>>>>>>> 70d6ed049320d713e69fb797cbac654dcc61b406
 
 
 **Works!!!**
@@ -740,3 +789,246 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+###New
+```{r}
+ui <- fluidPage(theme = shinytheme('flatly'),
+  navbarPage("Nematode Soil Dashboard",
+  
+  tabPanel("Map",
+    fluidPage(
+      leafletOutput("nematode_map", height = 600),
+      br(),
+      selectInput("nematode", "Select Trophic Guild(s):", 
+                  choices = unique(nematode$trophic_guild), 
+                  selected = unique(nematode$trophic_guild)[1],
+                  multiple = TRUE),
+      sliderInput("pH_range", "Select pH Range:",
+                  min = min(nematode$p_h, na.rm = TRUE), 
+                  max = max(nematode$p_h, na.rm = TRUE), 
+                  value = c(min(nematode$p_h, na.rm = TRUE), max(nematode$p_h, na.rm = TRUE))),
+      sliderInput("moisture_range", "Select Moisture Range:",
+                  min = min(nematode$moisture, na.rm = TRUE), 
+                  max = max(nematode$moisture, na.rm = TRUE), 
+                  value = c(min(nematode$moisture, na.rm = TRUE), max(nematode$moisture, na.rm = TRUE))),
+      sliderInput("elevation_range", "Select Elevation Range:",
+                  min = min(nematode$elevation, na.rm = TRUE), 
+                  max = max(nematode$elevation, na.rm = TRUE), 
+                  value = c(min(nematode$elevation, na.rm = TRUE), max(nematode$elevation, na.rm = TRUE)))
+    )
+  ),
+  
+  tabPanel("Soil and Climate",
+    fluidPage(
+      fluidRow(
+        column(6,
+          plotOutput("plot_soil_climate", height = 250)
+        ),
+        column(6,
+          selectInput("x_soil", "Select Soil Variable:", 
+                      choices = c("conductivity", "p_h", "moisture", "temperature"), 
+                      selected = "conductivity"),
+          selectInput("y_climate", "Select Climatic Variable:", 
+                      choices = c("temperature_annual_range", "precipitation_of_wettest_month", 
+                                  "precipitation_seasonality", "precipitation_of_driest_month"), 
+                      selected = "temperature_annual_range")
+        )
+      )
+    )
+  ),
+  
+  tabPanel("Elevation and Soil Moisture",
+    fluidPage(
+      fluidRow(
+        column(6,
+          plotOutput("plot_soil_moisture", height = 250)
+        ),
+        column(6,
+          selectInput("elevation", "Select Elevation Level:", 
+                      choices = unique(soil$elevation_level))
+        )
+      )
+    )
+  ),
+  
+  tabPanel("Elevation and Diversity",
+    fluidPage(
+      fluidRow(
+        column(6,
+          plotOutput("plot_diversity", height = 250)
+        ),
+        column(6,
+          selectInput("y_diversity", "Select Y Variable", 
+                      choices = c("enrichment_footprint", "composite_footprint", 
+                                  "sigma_maturity_index"), 
+                      selected = "enrichment_footprint")
+        )
+      )
+    )
+  ),
+  
+  tabPanel("Elevation level and Species",
+    fluidPage(
+      fluidRow(
+        column(6,
+          plotOutput("plot_species", height = 400, width = 400)
+        ),
+        column(6,
+          selectInput("x_species", "Select X Variable", 
+                      choices = c("conductivity", "p_h", "moisture", "temperature", "isothermality"), 
+                      selected = "conductivity"),
+          selectInput("y_species", "Select Y Variable", 
+                      choices = c("herbivores_percent_of_total", "fungivores_percent_of_total", 
+                                  "bacterivores_percent_of_total", "predators_percent_of_total", 
+                                  "omnivores_percent_of_total"),
+                      selected = "herbivores_percent_of_total")
+        )
+      )
+    )
+  ),
+  tabPanel("3D Plot",
+           sidebarLayout(
+             sidebarPanel(
+               selectInput("x_axis", "Select X Variable (Soil Properties):", 
+                           choices = c("conductivity", "p_h", "moisture", "temperature"), 
+                      selected = "conductivity"),
+               selectInput("y_axis", "Select Y Variable (Climate Properties):", 
+                           choices = c("temperature_annual_range", "precipitation_of_wettest_month", 
+                                  "precipitation_seasonality", "precipitation_of_driest_month"), 
+                      selected = "temperature_annual_range"),
+               selectInput("z_axis", "Select Z Variable (Trophic Guild):", 
+                           choices = c("herbivores_percent_of_total", "fungivores_percent_of_total", 
+                                  "bacterivores_percent_of_total", "predators_percent_of_total", 
+                                  "omnivores_percent_of_total"),
+                      selected = "herbivores_percent_of_total")
+             ),
+             mainPanel(
+               plotlyOutput("plot3D", height = "600px")
+             )
+           )
+  )
+  )
+)
+
+
+server <- function(input, output, session) {
+  
+ 
+  pal <- colorFactor(
+    palette = c("#E41A1C", "#377EB8", "#FF7F00", "#984EA3", "#F1C40F"), 
+    domain = unique(nematode$trophic_guild)
+  )
+  
+ 
+  filtered_data <- reactive({
+    nematode %>%
+      filter(trophic_guild %in% input$nematode,
+             elevation >= input$elevation_range[1] & elevation <= input$elevation_range[2],
+             p_h >= input$pH_range[1] & p_h <= input$pH_range[2],
+             moisture >= input$moisture_range[1] & moisture <= input$moisture_range[2],
+             percent > 0)
+  })
+  
+ 
+  output$nematode_map <- renderLeaflet({
+    leaflet(filtered_data()) %>%
+      addTiles() %>%
+      addCircleMarkers(
+        ~longitude, ~latitude,
+        color = ~pal(trophic_guild),
+        fillColor = ~pal(trophic_guild),
+        fillOpacity = 0.8,
+        popup = ~paste("Site:", site, 
+                       "<br>Trophic Guild:", trophic_guild, 
+                       "<br>Percent:", percent,
+                       "<br>pH:", p_h,
+                       "<br>Moisture:", moisture,
+                       "<br>Elevation:", elevation, 
+                       "<br>Conductivity:", conductivity),
+        clusterOptions = markerClusterOptions()
+      ) %>%
+      addLegend("topright", 
+                pal = pal, 
+                values = ~trophic_guild,
+                title = "Trophic Guild",
+                opacity = 1)
+  })
+  
+  
+  output$plot_soil_climate <- renderPlot({
+    ggplot(data = soil, aes_string(x = input$x_soil, y = input$y_climate, color = "transect")) +
+      geom_point(na.rm = TRUE) +
+      theme_light(base_size = 14) +
+      geom_smooth(method = "lm", se = FALSE) +
+      labs(title = "Soil vs Climatic Properties")
+  })
+  
+  
+  output$plot_soil_moisture <- renderPlot({
+    soil %>%
+      filter(elevation_level == input$elevation) %>%
+      ggplot(aes(x = moisture)) + 
+      geom_density(color = "black", fill = "steelblue", alpha = 0.6) +
+      labs(title = "Moisture at Different Elevation Levels")
+  })
+  
+  
+  output$plot_diversity <- renderPlot({
+    ggplot(data = soil, aes_string(x = "elevation_level", y = input$y_diversity, color = "transect")) +
+      geom_boxplot(na.rm = TRUE) +
+      theme_light(base_size = 14) +
+      labs(title = "Elevation vs Diversity")
+  })
+  
+  
+  output$plot_species <- renderPlot({
+    ggplot(data = soil, aes_string(x = input$x_species, y = input$y_species, color = "transect")) +
+      geom_point(na.rm = TRUE) +
+      theme_light(base_size = 14) +
+      geom_smooth(method = "lm", se = TRUE, color = "black") +
+      labs(title = "Soil Properties vs Trophic Guilds")
+  })
+  
+  output$plot3D <- renderPlotly({
+  
+    model <- lm(as.formula(paste(input$z_axis, "~", input$x_axis, "+", input$y_axis)), data = soil)
+    
+   
+    x_range <- seq(min(soil[[input$x_axis]], na.rm = TRUE), max(soil[[input$x_axis]], na.rm = TRUE), length.out = 20)
+    y_range <- seq(min(soil[[input$y_axis]], na.rm = TRUE), max(soil[[input$y_axis]], na.rm = TRUE), length.out = 20)
+    
+    grid <- expand.grid(x = x_range, y = y_range)
+    colnames(grid) <- c(input$x_axis, input$y_axis)
+    
+   
+    grid[[input$z_axis]] <- predict(model, newdata = grid)
+    
+    plot_ly(data = soil, 
+            x = ~get(input$x_axis), 
+            y = ~get(input$y_axis), 
+            z = ~get(input$z_axis),
+            type = "scatter3d",
+            mode = "markers",
+            marker = list(size = 5, color = ~get(input$z_axis), colorscale = "Viridis")) %>%
+      
+      
+      add_trace(
+        x = grid[[input$x_axis]],
+        y = grid[[input$y_axis]],
+        z = grid[[input$z_axis]],
+        type = "mesh3d",
+        opacity = 0.5,
+        color = "purple"
+      ) %>%
+      
+      layout(
+        scene = list(
+          xaxis = list(title = input$x_axis),
+          yaxis = list(title = input$y_axis),
+          zaxis = list(title = input$z_axis)
+        )
+      )
+})
+}
+
+shinyApp(ui, server)
+```
